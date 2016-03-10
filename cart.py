@@ -60,6 +60,7 @@ class Book(ndb.Model):
     """A main model for representing an individual Guestbook entry."""
     author = ndb.StringProperty(indexed=True)
     title = ndb.StringProperty(indexed=False)
+    price = ndb.FloatProperty(indexed=False)
     date = ndb.DateTimeProperty(auto_now_add=True)
 
 class MainPage(webapp2.RequestHandler):
@@ -127,6 +128,7 @@ class Enter(webapp2.RequestHandler):
 
         book.author = self.request.get('author')
         book.title = self.request.get('title')
+        book.price = self.request.get('price')
         query_param1 = {'genre_name': genre_name}
         if book.author != '' and book.title != '' :
             book.put()
