@@ -12,7 +12,7 @@
     </center>
     <hr>
     {% for book in bookList %}
-      <blockquote>{{ book.author }},  {{ book.title}}</blockquote>
+      <blockquote>{{ book.author }},  {{ book.title}},  {{book.price}}</blockquote>
     {% endfor %}
     {% if author == '' %}
       <blockquote> Error: empty author field </blockquote>

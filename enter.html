@@ -12,7 +12,7 @@
     </center>
     <hr>
     {% if error == "true" %}
-      <blockquote> Error: empty author or title field </blockquote>
+      <blockquote> Error: empty author / title field or invalid price </blockquote>
     {% endif %}
     <form action="/add?genre_name={{ genre_name }}" method="post">
       <div>
@@ -21,6 +21,9 @@
       <div>
 	<label for="title">Title:</label>
 	<textarea name="title"></textarea></div>
+	<div>
+	<label for="price">Price:</label>
+	<input type="text" name="price" /> </div>
       <div class="button"><button type="submit">Enter book info</button></div>
     </form>
 

@@ -128,9 +128,15 @@ class Enter(webapp2.RequestHandler):
 
         book.author = self.request.get('author')
         book.title = self.request.get('title')
-        book.price = self.request.get('price')
         query_param1 = {'genre_name': genre_name}
-        if book.author != '' and book.title != '' :
+        
+        is_float = True
+        try:
+            book.price = float(self.request.get('price'))        
+        except:
+            is_float = False
+
+        if book.author != '' and book.title != '' and is_float:
             book.put()
             self.redirect('/?' + urllib.urlencode(query_param1))
         else:
