@@ -51,6 +51,9 @@ def genre_key(genre_name=DEFAULT_GENRE):
     """
     return ndb.Key('Genre', genre_name.lower())
 
+def cart_key(user):
+    return ndb.Key('User', user)
+
 #class Author(ndb.Model):
 #    """Sub model for representing an author."""
 #    identity = ndb.StringProperty(indexed=False)
@@ -235,6 +238,17 @@ class Login(webapp2.RequestHandler):
                         users.create_login_url('/'))
 
         self.response.out.write('<html><body>%s</body></html>' % greeting)
+
+
+class AddToCart(webapp2.RequestHandler):
+    
+    def post(self):
+        user = users.get_current_user()
+        if not user:
+            user = self.request.cookies.get('key')
+        cart = Cart(parent=cart_key(user))
+        cart.book = self.request.get('book')
+        print cart.book
         
 
 app = webapp2.WSGIApplication([
@@ -244,4 +258,5 @@ app = webapp2.WSGIApplication([
     ('/display', DisplayPage),
     ('/search', Search),
     ('/login', Login),
+    ('/add-to-cart', AddToCart),
 ], debug=False)

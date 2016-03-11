@@ -13,7 +13,7 @@
     <hr>
 	<form action="/add-to-cart" method="post"> 
     {% for book in genre %}
-		<input class="checkbox" type="checkbox" name="book" value={{book}}>    {{ book.author }},  {{ book.title}},  ${{book.price}}<br>
+		<input class="checkbox" type="checkbox" name="book" value={{book}}> &nbsp; {{ book.author }},  {{ book.title}},  ${{book.price}}<br>
     {% endfor %}
 		<input class="checkbox" type="submit" value="Submit">
     </form>
