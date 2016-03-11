@@ -11,9 +11,12 @@
       <br><br>
     </center>
     <hr>
+	<form action="/add-to-cart" method="post"> 
     {% for book in genre %}
-      <blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}</blockquote>
+		<input class="checkbox" type="checkbox" name="book" value={{book}}>    {{ book.author }},  {{ book.title}},  ${{book.price}}<br>
     {% endfor %}
+		<input class="checkbox" type="submit" value="Submit">
+    </form>
   <br><br>
   <center>
     <a href=.> Return to main page </a>

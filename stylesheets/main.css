@@ -24,7 +24,7 @@ label {
     text-align: right;
 }
 
-input, textarea {
+input:not(.checkbox), textarea {
     /* To make sure that all text fields have the same font settings
        By default, textareas have a monospace font */
     font: 1em sans-serif;

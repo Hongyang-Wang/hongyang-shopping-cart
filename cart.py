@@ -1,5 +1,6 @@
 import os
 import urllib
+import random
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -63,9 +64,17 @@ class Book(ndb.Model):
     price = ndb.FloatProperty(indexed=False)
     date = ndb.DateTimeProperty(auto_now_add=True)
 
+class Cart(ndb.Model):
+    user = ndb.StringProperty(indexed=True)
+    book = ndb.StructuredProperty(Book)
+
 class MainPage(webapp2.RequestHandler):
 
-    def get(self):
+    def get(self): 
+
+        cookie_id = self.request.cookies.get('key')
+        if cookie_id == None:
+            cookie_id = random.randint(1000000000, 9999999999)
         
         user = users.get_current_user()
         if user:
@@ -104,6 +113,7 @@ class MainPage(webapp2.RequestHandler):
 
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
+        self.response.headers.add_header('Set-Cookie', 'key=%s' % str(cookie_id))        
 
 class EnterPage(webapp2.RequestHandler):
     def get(self):
