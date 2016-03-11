@@ -16,6 +16,13 @@
 </center>
 
 <hr>
+{% if hasLogin %}
+	<div align="right">{{nickname}} (<a href={{url}}>sign out</a>) &nbsp;&nbsp; <a href=cart> Cart </a></div>
+{% else %}
+	<div align="right"><a href={{url}}>Sign in or register</a> &nbsp;&nbsp; <a href=cart> Cart </a></div>
+{% endif %}
+
+<hr>
 <br>
 
 <ul>

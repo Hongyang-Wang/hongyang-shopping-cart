@@ -66,6 +66,17 @@ class Book(ndb.Model):
 class MainPage(webapp2.RequestHandler):
 
     def get(self):
+        
+        user = users.get_current_user()
+        if user:
+            url = users.create_logout_url('/')
+            nickname = user.nickname()
+            hasLogin = True
+        else:
+            url = users.create_login_url('/')
+            nickname = ''
+            hasLogin = False                       
+        
         genre_name = self.request.get('genre_name',
                                           DEFAULT_GENRE)
         genre_query = Book.query(
@@ -84,6 +95,9 @@ class MainPage(webapp2.RequestHandler):
 #           'user': user,
             'genre': genre,
             'genre_name': urllib.quote_plus(genre_name),
+            'url': url,
+            'nickname': nickname,
+            'hasLogin': hasLogin,
 #           'url': url,
 #           'url_linktext': url_linktext,
         }
@@ -197,6 +211,20 @@ class Search(webapp2.RequestHandler):
         query_param1 = {'genre_name': genre_name}
         query_param2 = {'author': author}
         self.redirect('/search?' + urllib.urlencode(query_param1) + '&' + urllib.urlencode(query_param2))
+
+
+class Login(webapp2.RequestHandler):
+
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            greeting = ('Welcome, %s! (<a href="%s">sign out</a>)' %
+                        (user.nickname(), users.create_logout_url('/')))
+        else:
+            greeting = ('<a href="%s">Sign in or register</a>.' %
+                        users.create_login_url('/'))
+
+        self.response.out.write('<html><body>%s</body></html>' % greeting)
         
 
 app = webapp2.WSGIApplication([
@@ -205,4 +233,5 @@ app = webapp2.WSGIApplication([
     ('/add', Enter),
     ('/display', DisplayPage),
     ('/search', Search),
+    ('/login', Login),
 ], debug=False)

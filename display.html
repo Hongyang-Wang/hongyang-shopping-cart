@@ -12,7 +12,7 @@
     </center>
     <hr>
     {% for book in genre %}
-      <blockquote>{{ book.author }},  {{ book.title}}</blockquote>
+      <blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}</blockquote>
     {% endfor %}
   <br><br>
   <center>
