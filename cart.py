@@ -79,7 +79,7 @@ class MainPage(webapp2.RequestHandler):
 
         cookie_id = self.request.cookies.get('key')
         if cookie_id == None:
-            cookie_id = random.randint(1000000000, 9999999999)
+            cookie_id = str(random.randint(1000000000, 9999999999))
         
         user = users.get_current_user()
         if user:
@@ -116,8 +116,8 @@ class MainPage(webapp2.RequestHandler):
 #           'url_linktext': url_linktext,
         }
 
-        print 'cookie_id', cookie_id
-        print 'user', user
+#         print 'cookie_id', cookie_id
+#         print 'user', user
 
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
@@ -275,6 +275,15 @@ class DisplayCart(webapp2.RequestHandler):
             user = self.request.cookies.get('key')
         else:
             user = user.email()
+            cookie_id = self.request.cookies.get('key')
+            cart_temp = Cart.query(ancestor=cart_key(cookie_id))
+            if cart_temp:
+                for book in cart_temp:
+                    cart = Cart(parent=cart_key(user))
+                    cart.book_id = book.book_id
+                    cart.book_genre = book.book_genre
+                    cart.put()
+                    book.key.delete() 
         cart = Cart.query(ancestor=cart_key(user))    
         
         total = 0
@@ -292,18 +301,42 @@ class DisplayCart(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('cart.html')
         self.response.write(template.render(template_values))                
 
-class Checkout(webapp2.RequestHandler):
-    
-    def get(self):
-        pass
+class CartOperations(webapp2.RequestHandler):
     
     def post(self):
-        user = users.get_current_user()
-        if not user:
-            url = users.create_login_url('/checkout')
-            self.redirect(url)
-        else:
-            user = user.email()
+        
+        button_checkout = self.request.get("checkout")
+        button_remove = self.request.get("remove")
+        
+        if button_checkout:
+            user = users.get_current_user()
+            if user == None:
+                url = users.create_login_url('/cart')
+                self.redirect(url)              
+            else:
+                user = user.email()       
+                cart_temp = Cart.query(ancestor=cart_key(user))
+                for book in cart_temp:
+                    book.key.delete()
+                self.redirect('/cart?' + urllib.urlencode({'user': user}))
+        
+        if button_remove:
+            pass
+
+# class Remove(webapp2.RequestHandler):
+#     
+#     def get(self):
+#         book_id = self.request.get('book-id')
+#         user = users.get_current_user()
+#         if not user:
+#             user = self.request.cookies.get('key')
+#         else:
+#             user = user.email()
+#         cart = Cart.query(ancestor=cart_key(user))
+#         for book in cart:
+#             if book.id == book_id:
+#                 book.key.delete()
+#         self.redirect('/cart?' + urllib.urlencode({'user': user}))
         
 
 app = webapp2.WSGIApplication([
@@ -314,5 +347,5 @@ app = webapp2.WSGIApplication([
     ('/search', Search),
     ('/add-to-cart', AddToCart),
     ('/cart', DisplayCart),
-    ('/checkout', Checkout),
+    ('/cart-operations', CartOperations),
 ], debug=False)

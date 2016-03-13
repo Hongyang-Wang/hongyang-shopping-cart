@@ -12,13 +12,13 @@
     </center>   
     
     <hr>	
-	<form action="/checkout" method="post"> 
+	<form action="/cart-operations" method="post"> 
     {% for book in cart %}
-		<blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}</blockquote>
+		<blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}, &nbsp;&nbsp; <button type="submit" name="remove" value="{{book.id}}">remove</button></blockquote>
     {% endfor %}	
 		<hr>
 		<p> Total: {{total}} </p>
-		<div class="button"><button type="submit">Checkout</button></div>
+		<div class="button"><button name="checkout" value="checkout" type="submit">Checkout</button></div>
     </form>		
 	
   <br><br>
