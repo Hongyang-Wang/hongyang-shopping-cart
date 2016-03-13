@@ -7,7 +7,13 @@
   <body>
     <center>
       <br>
-      <font size="+2" color=0000CC> Items in Cart </font>
+      <font size="+2" color=0000CC> 
+      	{% if user_name == 'false' %}
+      		Items in Temporary Cart 
+      	{% else %}
+      		Items in {{user_name}}'s Cart
+      	{% endif %}
+      </font>
       <br><br>
     </center>   
         
@@ -19,7 +25,7 @@
     <hr>	
 	<form action="/cart-operations" method="post"> 
     {% for book in cart %}
-		<blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}, &nbsp;&nbsp; <button type="submit" name="remove" value="{{book.id}}">remove</button></blockquote>
+		<blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}} &nbsp;&nbsp; <button type="submit" name="remove" value="{{book.id}}">remove</button></blockquote>
     {% endfor %}	
 		<hr>
 		<p> Total: {{total}} </p>
