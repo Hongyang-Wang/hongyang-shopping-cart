@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>  
+  <body>
+    <center>
+      <br>
+      <font size="+2" color=0000CC> Items in Cart </font>
+      <br><br>
+    </center>   
+    
+    <hr>	
+	<form action="/checkout" method="post"> 
+    {% for book in cart %}
+		<blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}</blockquote>
+    {% endfor %}	
+		<hr>
+		<p> Total: {{total}} </p>
+		<div class="button"><button type="submit">Checkout</button></div>
+    </form>		
+	
+  <br><br>
+  <center>
+    <a href=.> Return to main page </a>
+  </center>
+  </body>
+</html>
+{% endautoescape %}

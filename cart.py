@@ -62,15 +62,17 @@ def cart_key(user):
 
 class Book(ndb.Model):
     """A main model for representing an individual Guestbook entry."""
+    id = ndb.StringProperty(indexed=True)  # uniquely defines a book
     author = ndb.StringProperty(indexed=True)
     title = ndb.StringProperty(indexed=False)
     price = ndb.FloatProperty(indexed=False)
     date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Cart(ndb.Model):
-    user = ndb.StringProperty(indexed=True)
-    book = ndb.StructuredProperty(Book)
-
+#     user = ndb.StringProperty(indexed=True)
+    book_id = ndb.StringProperty()
+    book_genre = ndb.StringProperty()
+    
 class MainPage(webapp2.RequestHandler):
 
     def get(self): 
@@ -114,6 +116,9 @@ class MainPage(webapp2.RequestHandler):
 #           'url_linktext': url_linktext,
         }
 
+        print 'cookie_id', cookie_id
+        print 'user', user
+
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
         self.response.headers.add_header('Set-Cookie', 'key=%s' % str(cookie_id))        
@@ -156,6 +161,25 @@ class Enter(webapp2.RequestHandler):
         book.author = self.request.get('author')
         book.title = self.request.get('title')
         query_param1 = {'genre_name': genre_name}
+        
+#         genre_query = Book.query(ancestor=genre_key(
+#                 genre_name.lower())).order(-Book.date).fetch(1)
+#         if genre_query:
+#             isbn = genre_query[0].isbn + 1
+#         else:
+#             isbn = 0
+#         book.isbn = isbn
+        
+        def generateId():
+            CHAR = [chr(i) for i in xrange(ord('A'), ord('Z')+1)] \
+                    + [chr(i) for i in xrange(ord('a'), ord('z')+1)] \
+                    + [chr(i) for i in xrange(ord('0'), ord('9')+1)]
+            cart_id = ''
+            for i in xrange(20):
+                cart_id += CHAR[random.randint(0, len(CHAR) - 1)]
+            return cart_id
+        
+        book.id = generateId()        
         
         is_float = True
         try:
@@ -225,30 +249,61 @@ class Search(webapp2.RequestHandler):
         query_param2 = {'author': author}
         self.redirect('/search?' + urllib.urlencode(query_param1) + '&' + urllib.urlencode(query_param2))
 
-
-class Login(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        if user:
-            greeting = ('Welcome, %s! (<a href="%s">sign out</a>)' %
-                        (user.nickname(), users.create_logout_url('/')))
-        else:
-            greeting = ('<a href="%s">Sign in or register</a>.' %
-                        users.create_login_url('/'))
-
-        self.response.out.write('<html><body>%s</body></html>' % greeting)
-
-
 class AddToCart(webapp2.RequestHandler):
     
     def post(self):
         user = users.get_current_user()
         if not user:
             user = self.request.cookies.get('key')
-        cart = Cart(parent=cart_key(user))
-        cart.book = self.request.get('book')
-        print cart.book
+        else:
+            user = user.email()
+        books = self.request.get('book', allow_multiple=True)
+        for book in books:
+            cart = Cart(parent=cart_key(user))
+            tokens = book.split('##')
+            book_id, book_genre = tokens[0], tokens[1]
+            cart.book_id = book_id
+            cart.book_genre = book_genre
+            cart.put()
+        self.redirect('/cart?' + urllib.urlencode({'user': user}))
+
+class DisplayCart(webapp2.RequestHandler):
+    
+    def get(self):
+        user = users.get_current_user()
+        if not user:
+            user = self.request.cookies.get('key')
+        else:
+            user = user.email()
+        cart = Cart.query(ancestor=cart_key(user))    
+        
+        total = 0
+        books = []
+        for item in cart:
+            book = Book.query(ancestor=genre_key(item.book_genre.lower())).filter(Book.id == item.book_id).fetch(1)            
+            total += book[0].price
+            books.extend(book)
+        
+        template_values = {
+            'cart': books,
+            'total': total,
+        }
+
+        template = JINJA_ENVIRONMENT.get_template('cart.html')
+        self.response.write(template.render(template_values))                
+
+class Checkout(webapp2.RequestHandler):
+    
+    def get(self):
+        pass
+    
+    def post(self):
+        user = users.get_current_user()
+        if not user:
+            url = users.create_login_url('/checkout')
+            self.redirect(url)
+        else:
+            user = user.email()
         
 
 app = webapp2.WSGIApplication([
@@ -257,6 +312,7 @@ app = webapp2.WSGIApplication([
     ('/add', Enter),
     ('/display', DisplayPage),
     ('/search', Search),
-    ('/login', Login),
     ('/add-to-cart', AddToCart),
+    ('/cart', DisplayCart),
+    ('/checkout', Checkout),
 ], debug=False)
