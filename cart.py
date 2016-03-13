@@ -296,7 +296,10 @@ class DisplayCart(webapp2.RequestHandler):
         template_values = {
             'cart': books,
             'total': total,
+            'checkout': self.request.get('checkout'),
         }
+        
+        print 'checkout', self.request.get('checkout')
 
         template = JINJA_ENVIRONMENT.get_template('cart.html')
         self.response.write(template.render(template_values))                
@@ -318,25 +321,21 @@ class CartOperations(webapp2.RequestHandler):
                 cart_temp = Cart.query(ancestor=cart_key(user))
                 for book in cart_temp:
                     book.key.delete()
-                self.redirect('/cart?' + urllib.urlencode({'user': user}))
+                self.redirect('/cart?' + urllib.urlencode({'user': user}) + '&' + urllib.urlencode({'checkout': 'true'}))
         
         if button_remove:
-            pass
-
-# class Remove(webapp2.RequestHandler):
-#     
-#     def get(self):
-#         book_id = self.request.get('book-id')
-#         user = users.get_current_user()
-#         if not user:
-#             user = self.request.cookies.get('key')
-#         else:
-#             user = user.email()
-#         cart = Cart.query(ancestor=cart_key(user))
-#         for book in cart:
-#             if book.id == book_id:
-#                 book.key.delete()
-#         self.redirect('/cart?' + urllib.urlencode({'user': user}))
+            book_id = button_remove
+            user = users.get_current_user()
+            if not user:
+                user = self.request.cookies.get('key')
+            else:
+                user = user.email()
+            cart = Cart.query(ancestor=cart_key(user))
+            for book in cart:
+                if book.book_id == book_id:
+                    book.key.delete()
+                    break
+            self.redirect('/cart?' + urllib.urlencode({'user': user}))
         
 
 app = webapp2.WSGIApplication([

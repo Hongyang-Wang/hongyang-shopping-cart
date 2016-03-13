@@ -11,9 +11,7 @@
       <br><br>
     </center>
     <hr>
-    {% for book in bookList %}
-      <blockquote>{{ book.author }},  {{ book.title}},  ${{book.price}}</blockquote>
-    {% endfor %}
+
     {% if author == '' %}
       <blockquote> Error: empty author field </blockquote>
     {% elif bookList|length == 0 and author != 'zzzzzzzzzzz' %}
@@ -25,6 +23,14 @@
 	<label for="author">Author's Name:</label>
 	<input type="text" name="author" /> </div>
       <div class="button"><button type="submit">Search</button></div>
+    </form>
+
+	<hr>
+	<form action="/add-to-cart" method="post"> 
+    {% for book in bookList %}
+		<input class="checkbox" type="checkbox" name="book" value="{{book.id}}##{{genre_name}}"> &nbsp; {{ book.author }},  {{ book.title}},  ${{book.price}}<br>
+    {% endfor %}
+		<input class="checkbox" type="submit" value="Add to Cart">
     </form>
 
     <hr>

@@ -10,6 +10,11 @@
       <font size="+2" color=0000CC> Items in Cart </font>
       <br><br>
     </center>   
+        
+    {% if checkout == 'true' %}
+    	<hr>
+    	<blockquote> Thanks for your purchase! </blockquote>
+    {% endif %}    
     
     <hr>	
 	<form action="/cart-operations" method="post"> 
